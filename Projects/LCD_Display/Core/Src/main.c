@@ -57,7 +57,7 @@ void writeToDisplay(char hexChar) {
   // Write a char (8 bits) to the 8 data pins (A0 - A7)
   int dataPins[8] = {GPIO_PIN_0,GPIO_PIN_1,GPIO_PIN_2,GPIO_PIN_3,GPIO_PIN_4,GPIO_PIN_5,GPIO_PIN_6,GPIO_PIN_7};
 
-  for(int i = 0; i++; i < 8) {
+  for(int i = 0; i<8; i++) {
     int result = hexChar & (1 << i);
     GPIO_PinState pinState = result ? GPIO_PIN_SET : GPIO_PIN_RESET;
 
@@ -67,9 +67,9 @@ void writeToDisplay(char hexChar) {
 
   // Set E = 1 for at least 230ns (latching pulse)
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
-  HAL_Delay(1);
+  HAL_Delay(5);
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
-  HAL_Delay(3);
+  HAL_Delay(5);
 }
 
 void sendData(char hexChar) {
@@ -82,7 +82,7 @@ void sendData(char hexChar) {
   HAL_Delay(3);
 
   // Select write mode
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
   HAL_Delay(3);
 
   // Call function to write hex character to D7-D0
@@ -99,11 +99,62 @@ void sendCommand(char hexCommand) {
   HAL_Delay(3);
 
   // Select write mode
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
   HAL_Delay(3);
 
   // Call function to write hex character to D7-D0
   writeToDisplay(hexCommand);
+}
+
+void clearDisplay() {
+   // E not enabled
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+  HAL_Delay(10);
+
+  sendCommand(56);
+  HAL_Delay(10);
+  sendCommand(15);
+  HAL_Delay(10);
+  sendCommand(1);
+  HAL_Delay(10);
+  sendCommand(6);
+  HAL_Delay(10);
+}
+
+char pacmanComiendo[] = {
+  0b01110,
+  0b11101,
+  0b11111,
+  0b11110,
+  0b11100,
+  0b11110,
+  0b11111,
+  0b01110
+};
+
+char pacmanCerrado[] = {
+  0b01110,
+  0b11101,
+  0b11111,
+  0b11111,
+  0b11110,
+  0b11111,
+  0b11111,
+  0b01110
+};
+
+void writeSpecialCharacter(char specialChar[8]) {
+  for(int i = 0; i<8; i++) {
+    sendCommand(0x40 + i);
+    sendData(specialChar[i]);
+  }
+}
+
+void drawPacman(char specialChar[8], char cursorPlacement) {
+  writeSpecialCharacter(specialChar);
+  sendCommand(cursorPlacement);
+  HAL_Delay(5);
+  sendData(0x00);
 }
 
 /* USER CODE END 0 */
@@ -137,14 +188,75 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-
-  /* USER CODE END 2 */
+    /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
+    // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+    // HAL_Delay(1000);
+    // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+    // HAL_Delay(1000);
+
+  clearDisplay();
+  drawPacman(pacmanComiendo, 0);
+  sendData(' ');
+  sendData(' ');
+  sendData(' ');
+  sendData(' ');
+   sendData('H');
+   sendData('E');
+   sendData('L');
+   sendData('L');
+   sendData('O');
+   
+   sendCommand(0xC0);
+
+    sendData(' ');
+    sendData(' ');
+    sendData(' ');
+   sendData('M');
+   sendData('r');
+   sendData(' ');
+   sendData('P');
+   sendData('A');
+   sendData('C');
+   sendData('M');
+   sendData('A');
+   sendData('N');
+
+  int delay = 50;
+   // Force cursor to start of first line
+   for(int i = 0; i < 15; i++) {
+    sendCommand(0x80 + i);
+    sendData(' ');
+    sendCommand(0x80 + i + 1);
+    drawPacman(pacmanCerrado, 0x80 + i + 1);
+    HAL_Delay(delay);
+
+    sendCommand(0x80 + i + 1);
+    sendData(' ');
+    sendCommand(0x80 + i + 2);
+    drawPacman(pacmanComiendo, 0x80 + i + 2);
+    HAL_Delay(delay);
+   }
+   
+   for(int i = 0; i < 15; i++) {
+    sendCommand(0xC0 + i);
+    sendData(' ');
+    sendCommand(0xC0 + i + 1);
+    drawPacman(pacmanCerrado, 0xC0 + i + 1);
+    HAL_Delay(delay);
+
+    sendCommand(0xC0 + i + 1);
+    sendData(' ');
+    sendCommand(0xC0 + i + 2);
+    drawPacman(pacmanComiendo, 0xC0 + i + 2);
+    HAL_Delay(delay);
+   }
+
 
     /* USER CODE BEGIN 3 */
   }
