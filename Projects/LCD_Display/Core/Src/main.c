@@ -188,75 +188,13 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-    /* USER CODE END 2 */
+  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-    // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-    // HAL_Delay(1000);
-    // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-    // HAL_Delay(1000);
-
-  clearDisplay();
-  drawPacman(pacmanComiendo, 0);
-  sendData(' ');
-  sendData(' ');
-  sendData(' ');
-  sendData(' ');
-   sendData('H');
-   sendData('E');
-   sendData('L');
-   sendData('L');
-   sendData('O');
-   
-   sendCommand(0xC0);
-
-    sendData(' ');
-    sendData(' ');
-    sendData(' ');
-   sendData('M');
-   sendData('r');
-   sendData(' ');
-   sendData('P');
-   sendData('A');
-   sendData('C');
-   sendData('M');
-   sendData('A');
-   sendData('N');
-
-  int delay = 50;
-   // Force cursor to start of first line
-   for(int i = 0; i < 15; i++) {
-    sendCommand(0x80 + i);
-    sendData(' ');
-    sendCommand(0x80 + i + 1);
-    drawPacman(pacmanCerrado, 0x80 + i + 1);
-    HAL_Delay(delay);
-
-    sendCommand(0x80 + i + 1);
-    sendData(' ');
-    sendCommand(0x80 + i + 2);
-    drawPacman(pacmanComiendo, 0x80 + i + 2);
-    HAL_Delay(delay);
-   }
-   
-   for(int i = 0; i < 15; i++) {
-    sendCommand(0xC0 + i);
-    sendData(' ');
-    sendCommand(0xC0 + i + 1);
-    drawPacman(pacmanCerrado, 0xC0 + i + 1);
-    HAL_Delay(delay);
-
-    sendCommand(0xC0 + i + 1);
-    sendData(' ');
-    sendCommand(0xC0 + i + 2);
-    drawPacman(pacmanComiendo, 0xC0 + i + 2);
-    HAL_Delay(delay);
-   }
-
 
     /* USER CODE BEGIN 3 */
   }
